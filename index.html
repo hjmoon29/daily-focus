@@ -185,6 +185,18 @@
     font-size: 12px;
     margin-top: 12px;
   }
+  .lock-badge {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: var(--panel-2);
+    color: var(--accent-2);
+    border: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .lock-badge.hidden { display: none; }
   /* Notes */
   .notes-area {
     flex: 1;
@@ -205,6 +217,33 @@
     font-size: 11px;
     margin-top: 8px;
     text-align: right;
+  }
+  .update-toast {
+    position: fixed;
+    left: 50%;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    background: var(--panel);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 12px 16px;
+    border-radius: 10px;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    z-index: 100;
+  }
+  .update-toast.show { display: flex; }
+  .update-toast button {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
   }
   @media (max-width: 900px) {
     .grid { grid-template-columns: 1fr; gap: 14px; }
@@ -237,7 +276,7 @@
     </div>
 
     <div class="panel">
-      <h2>집중 타이머</h2>
+      <h2>집중 타이머<span id="lockBadge" class="lock-badge hidden">화면 유지</span></h2>
       <div class="timer-mode" id="timerMode">Focus</div>
       <div class="timer-display" id="timerDisplay">25:00</div>
       <div class="timer-controls">
@@ -259,14 +298,22 @@
     </div>
   </div>
 
+  <div class="update-toast" id="updateToast">
+    <span>새 버전이 준비됐어요</span>
+    <button id="updateApply">새로고침</button>
+  </div>
+
 <script>
   const todayKey = () => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   };
-  document.getElementById('today').textContent = new Date().toLocaleDateString('ko-KR', {
-    year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
-  });
+  const renderTodayLabel = () => {
+    document.getElementById('today').textContent = new Date().toLocaleDateString('ko-KR', {
+      year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+    });
+  };
+  renderTodayLabel();
 
   // --- Todo ---
   const todoInput = document.getElementById('todoInput');
@@ -313,16 +360,22 @@
   todoInput.addEventListener('keydown', e => { if (e.key === 'Enter') addTodo(); });
   renderTodos();
 
-  // --- Timer ---
-  let timerMinutes = 25;
-  let remaining = timerMinutes * 60;
-  let intervalId = null;
+  // --- Timer (Date.now() 기반 — 백그라운드 throttle에도 정확) ---
+  const MODE_MINUTES = { focus: 25, short: 5, long: 15 };
+  const MODE_LABEL   = { focus: 'Focus', short: 'Short Break', long: 'Long Break' };
   let currentMode = 'focus';
-  const display = document.getElementById('timerDisplay');
-  const startBtn = document.getElementById('timerStart');
-  const resetBtn = document.getElementById('timerReset');
-  const modeLabel = document.getElementById('timerMode');
+  let durationMs  = MODE_MINUTES[currentMode] * 60 * 1000;
+  let remainingMs = durationMs;   // 일시정지/정지 상태에서의 남은 시간
+  let endAt       = null;          // 실행 중일 때 종료 절대시각
+  let intervalId  = null;
+  let wakeLock    = null;
+
+  const display        = document.getElementById('timerDisplay');
+  const startBtn       = document.getElementById('timerStart');
+  const resetBtn       = document.getElementById('timerReset');
+  const modeLabel      = document.getElementById('timerMode');
   const sessionCountEl = document.getElementById('sessionCount');
+  const lockBadge      = document.getElementById('lockBadge');
 
   function loadSessions() {
     const data = JSON.parse(localStorage.getItem('sessions') || '{}');
@@ -330,7 +383,8 @@
   }
   function incrementSession() {
     const data = JSON.parse(localStorage.getItem('sessions') || '{}');
-    data[todayKey()] = (data[todayKey()] || 0) + 1;
+    const k = todayKey();
+    data[k] = (data[k] || 0) + 1;
     localStorage.setItem('sessions', JSON.stringify(data));
     renderSessions();
   }
@@ -340,85 +394,224 @@
   renderSessions();
 
   function updateDisplay() {
-    const m = Math.floor(remaining / 60);
-    const s = remaining % 60;
+    const totalSec = Math.max(0, Math.ceil(remainingMs / 1000));
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
     display.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     document.title = `${display.textContent} - Daily Focus`;
   }
-  function tick() {
-    if (remaining <= 0) {
-      clearInterval(intervalId);
-      intervalId = null;
-      startBtn.textContent = '시작';
-      if (currentMode === 'focus') incrementSession();
+
+  function playChime() {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      const audio = new AC();
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.connect(gain); gain.connect(audio.destination);
+      osc.frequency.value = 660;
+      gain.gain.setValueAtTime(0.15, audio.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.8);
+      osc.start(); osc.stop(audio.currentTime + 0.8);
+    } catch(e) {}
+  }
+
+  function notify(title, body) {
+    if ('Notification' in window && Notification.permission === 'granted') {
       try {
-        const audio = new AudioContext();
-        const osc = audio.createOscillator();
-        const gain = audio.createGain();
-        osc.connect(gain); gain.connect(audio.destination);
-        osc.frequency.value = 660;
-        gain.gain.setValueAtTime(0.15, audio.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.8);
-        osc.start(); osc.stop(audio.currentTime + 0.8);
-      } catch(e) {}
-      alert(currentMode === 'focus' ? '집중 세션 완료! 잠깐 쉬세요.' : '휴식 끝! 다시 집중해봅시다.');
-      return;
+        const n = new Notification(title, {
+          body,
+          icon: 'icon-192.svg',
+          badge: 'icon-192.svg',
+          tag: 'daily-focus-timer',
+          renotify: true
+        });
+        n.onclick = () => { window.focus(); n.close(); };
+        return;
+      } catch (e) {}
     }
-    remaining--;
+    // 알림 권한 없거나 실패하면 페이지가 보일 때만 alert (백그라운드에선 노출 안 됨)
+    if (document.visibilityState === 'visible') {
+      alert(`${title}\n${body}`);
+    }
+  }
+
+  async function requestWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      lockBadge.classList.remove('hidden');
+      wakeLock.addEventListener('release', () => {
+        lockBadge.classList.add('hidden');
+      });
+    } catch (e) {
+      // 사용자가 거부하거나 배터리 절약 모드 등
+    }
+  }
+  async function releaseWakeLock() {
+    if (wakeLock) {
+      try { await wakeLock.release(); } catch(e) {}
+      wakeLock = null;
+      lockBadge.classList.add('hidden');
+    }
+  }
+
+  async function ensureNotifyPermission() {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      try { await Notification.requestPermission(); } catch(e) {}
+    }
+  }
+
+  function tick() {
+    if (endAt === null) return;
+    remainingMs = Math.max(0, endAt - Date.now());
+    updateDisplay();
+    if (remainingMs <= 0) complete();
+  }
+
+  function start() {
+    if (remainingMs <= 0) remainingMs = durationMs;
+    endAt = Date.now() + remainingMs;
+    intervalId = setInterval(tick, 500);
+    startBtn.textContent = '일시정지';
+    ensureNotifyPermission();
+    requestWakeLock();
     updateDisplay();
   }
-  startBtn.addEventListener('click', () => {
-    if (intervalId) {
-      clearInterval(intervalId);
-      intervalId = null;
-      startBtn.textContent = '재개';
-    } else {
-      intervalId = setInterval(tick, 1000);
-      startBtn.textContent = '일시정지';
-    }
-  });
-  resetBtn.addEventListener('click', () => {
+  function pause() {
+    remainingMs = Math.max(0, endAt - Date.now());
     clearInterval(intervalId);
     intervalId = null;
-    remaining = timerMinutes * 60;
+    endAt = null;
+    startBtn.textContent = '재개';
+    releaseWakeLock();
+    updateDisplay();
+  }
+  function reset() {
+    clearInterval(intervalId);
+    intervalId = null;
+    endAt = null;
+    remainingMs = durationMs;
+    startBtn.textContent = '시작';
+    releaseWakeLock();
+    updateDisplay();
+  }
+  function complete() {
+    clearInterval(intervalId);
+    intervalId = null;
+    endAt = null;
+    remainingMs = 0;
     startBtn.textContent = '시작';
     updateDisplay();
+    releaseWakeLock();
+    if (currentMode === 'focus') incrementSession();
+    playChime();
+    const isFocus = currentMode === 'focus';
+    notify(
+      isFocus ? '집중 세션 완료' : '휴식 종료',
+      isFocus ? '잠깐 쉬세요.' : '다시 집중해봅시다.'
+    );
+    // 완료 후 다음 세션을 위해 duration으로 복귀
+    remainingMs = durationMs;
+    updateDisplay();
+  }
+
+  startBtn.addEventListener('click', () => {
+    if (endAt !== null) pause();
+    else start();
   });
+  resetBtn.addEventListener('click', reset);
   document.querySelectorAll('.mode-switch button').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.mode-switch button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentMode = btn.dataset.mode;
-      timerMinutes = parseInt(btn.dataset.time, 10);
-      modeLabel.textContent = currentMode === 'focus' ? 'Focus' : (currentMode === 'short' ? 'Short Break' : 'Long Break');
-      clearInterval(intervalId);
-      intervalId = null;
-      remaining = timerMinutes * 60;
-      startBtn.textContent = '시작';
-      updateDisplay();
+      durationMs = MODE_MINUTES[currentMode] * 60 * 1000;
+      modeLabel.textContent = MODE_LABEL[currentMode];
+      reset();
     });
   });
   updateDisplay();
 
-  // --- Notes ---
+  // --- Notes (일자별 키, 자정 롤오버 대응) ---
   const notes = document.getElementById('notes');
   const notesStatus = document.getElementById('notesStatus');
-  const notesKey = `notes-${todayKey()}`;
-  notes.value = localStorage.getItem(notesKey) || '';
+  let currentNotesDate = todayKey();
+
+  function loadNotesForToday() {
+    currentNotesDate = todayKey();
+    notes.value = localStorage.getItem(`notes-${currentNotesDate}`) || '';
+    notesStatus.textContent = '저장됨';
+  }
+  function saveNotesNow() {
+    localStorage.setItem(`notes-${currentNotesDate}`, notes.value);
+  }
+  loadNotesForToday();
+
   let saveTimeout = null;
   notes.addEventListener('input', () => {
     notesStatus.textContent = '입력 중...';
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
-      localStorage.setItem(notesKey, notes.value);
+      saveNotesNow();
       notesStatus.textContent = `저장됨 · ${new Date().toLocaleTimeString('ko-KR')}`;
     }, 400);
   });
 
-  // --- Service Worker (offline support) ---
+  // 자정 롤오버 감지: 가시 상태로 돌아오거나 매 분 체크
+  function checkDayRollover() {
+    const nowKey = todayKey();
+    if (nowKey !== currentNotesDate) {
+      // 어제 메모를 마지막으로 저장 후 오늘 메모 로드
+      if (saveTimeout) { clearTimeout(saveTimeout); saveNotesNow(); }
+      loadNotesForToday();
+      renderTodayLabel();
+      renderSessions();
+    }
+  }
+  setInterval(checkDayRollover, 60 * 1000);
+
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible') {
+      checkDayRollover();
+      renderSessions();
+      if (endAt !== null) {
+        tick();                  // 백그라운드에서 벗어나며 즉시 시간 동기화
+        if (!wakeLock) await requestWakeLock(); // wake lock은 hidden 시 해제됨 → 재요청
+      }
+    }
+  });
+
+  // --- Service Worker + 업데이트 감지 ---
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        // 새 워커 감지 시 사용자에게 새로고침 안내
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener('statechange', () => {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+              const toast = document.getElementById('updateToast');
+              const apply = document.getElementById('updateApply');
+              toast.classList.add('show');
+              apply.onclick = () => {
+                nw.postMessage({ type: 'SKIP_WAITING' });
+              };
+            }
+          });
+        });
+        // 매 방문 시 업데이트 체크
+        reg.update().catch(() => {});
+      }).catch(() => {});
+
+      let reloaded = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (reloaded) return;
+        reloaded = true;
+        window.location.reload();
+      });
     });
   }
 </script>
