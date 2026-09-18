@@ -4,53 +4,25 @@
       <stop offset="0" stop-color="#fff6cc"/>
       <stop offset="1" stop-color="#fde68a"/>
     </linearGradient>
-    <radialGradient id="cheek" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#fca5a5" stop-opacity="0.7"/>
-      <stop offset="1" stop-color="#fca5a5" stop-opacity="0"/>
-    </radialGradient>
+    <linearGradient id="infGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#3b82f6"/>
+    </linearGradient>
   </defs>
-
   <rect width="512" height="512" rx="108" fill="url(#bg)"/>
 
-  <circle cx="88" cy="110" r="6" fill="#fff" opacity="0.85"/>
-  <circle cx="440" cy="150" r="5" fill="#fff" opacity="0.85"/>
-  <circle cx="70" cy="380" r="5" fill="#fff" opacity="0.8"/>
-  <circle cx="450" cy="390" r="6" fill="#fff" opacity="0.85"/>
+  <!-- Sparkles -->
+  <circle cx="88" cy="110" r="5" fill="#fff" opacity="0.85"/>
+  <circle cx="440" cy="150" r="4" fill="#fff" opacity="0.85"/>
+  <circle cx="70" cy="380" r="4" fill="#fff" opacity="0.8"/>
+  <circle cx="450" cy="390" r="5" fill="#fff" opacity="0.85"/>
 
-  <g transform="translate(256, 120)">
-    <path d="M0,20 C-18,-8 -60,-2 -60,32 C-60,72 -10,102 0,118 C10,102 60,72 60,32 C60,-2 18,-8 0,20 Z" fill="#ef4444"/>
-    <ellipse cx="-22" cy="30" rx="12" ry="7" fill="#fff" opacity="0.55"/>
-  </g>
+  <!-- Infinity loop (lemniscate) with yellow→blue gradient -->
+  <path d="M256 256 C205 176 90 176 90 256 C90 336 205 336 256 256 C307 176 422 176 422 256 C422 336 307 336 256 256 Z"
+        stroke="url(#infGrad)" stroke-width="44"
+        fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <g transform="translate(180, 330)">
-    <ellipse cx="0" cy="105" rx="70" ry="8" fill="#000" opacity="0.06"/>
-    <path d="M-72,0 Q-78,-8 -70,-14 L70,-14 Q78,-8 72,0 L72,90 Q40,108 0,108 Q-40,108 -72,90 Z" fill="#3b82f6"/>
-    <path d="M-24,-14 Q0,8 24,-14 Z" fill="#1d4ed8" opacity="0.5"/>
-    <rect x="-14" y="-24" width="28" height="14" rx="4" fill="#ffe4c4"/>
-    <circle cx="0" cy="-70" r="62" fill="#ffe4c4"/>
-    <path d="M-58,-90 Q-62,-138 0,-135 Q62,-138 58,-90 Q42,-108 0,-108 Q-42,-108 -58,-90 Z" fill="#3f2914"/>
-    <path d="M-26,-68 Q-20,-74 -14,-68" stroke="#1e293b" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M14,-68 Q20,-74 26,-68" stroke="#1e293b" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M-14,-46 Q0,-32 14,-46" stroke="#1e293b" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <circle cx="-36" cy="-50" r="10" fill="url(#cheek)"/>
-    <circle cx="36" cy="-50" r="10" fill="url(#cheek)"/>
-  </g>
-
-  <g transform="translate(332, 330)">
-    <ellipse cx="0" cy="105" rx="70" ry="8" fill="#000" opacity="0.06"/>
-    <path d="M-72,0 Q-78,-8 -70,-14 L70,-14 Q78,-8 72,0 L72,90 Q40,108 0,108 Q-40,108 -72,90 Z" fill="#fbbf24"/>
-    <path d="M-24,-14 Q0,8 24,-14 Z" fill="#d97706" opacity="0.35"/>
-    <rect x="-14" y="-24" width="28" height="14" rx="4" fill="#ffe4c4"/>
-    <circle cx="0" cy="-70" r="62" fill="#ffe4c4"/>
-    <path d="M-62,-90 Q-66,-140 0,-138 Q66,-140 62,-90 L64,-14 Q52,-42 42,-56 Q0,-90 -42,-56 Q-52,-42 -64,-14 Z" fill="#2b1e14"/>
-    <path d="M-40,-108 Q-20,-125 0,-118 Q20,-125 40,-108 Q30,-95 0,-95 Q-30,-95 -40,-108 Z" fill="#2b1e14"/>
-    <path d="M-26,-68 Q-20,-74 -14,-68" stroke="#1e293b" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M14,-68 Q20,-74 26,-68" stroke="#1e293b" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M-14,-46 Q0,-32 14,-46" stroke="#1e293b" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <circle cx="-36" cy="-50" r="10" fill="url(#cheek)"/>
-    <circle cx="36" cy="-50" r="10" fill="url(#cheek)"/>
-  </g>
-
-  <path d="M112,300 C108,296 100,298 100,306 C100,312 112,320 112,320 C112,320 124,312 124,306 C124,298 116,296 112,300 Z" fill="#ef4444" opacity="0.85"/>
-  <path d="M416,300 C412,296 404,298 404,306 C404,312 416,320 416,320 C416,320 428,312 428,306 C428,298 420,296 416,300 Z" fill="#ef4444" opacity="0.85"/>
+  <!-- Central heart -->
+  <path d="M256 232 C250 220 232 224 232 244 C232 262 256 282 256 282 C256 282 280 262 280 244 C280 224 262 220 256 232 Z" fill="#ef4444"/>
+  <ellipse cx="248" cy="244" rx="5" ry="3" fill="#fff" opacity="0.55"/>
 </svg>
