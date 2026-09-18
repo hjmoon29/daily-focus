@@ -170,28 +170,112 @@
   .stat-value { font-size: 32px; font-weight: 900; letter-spacing: -1px; color: var(--text); }
   .stat-sub { color: var(--muted); font-size: 13px; margin-top: 6px; font-weight: 600; }
 
-  .mood-row { display: flex; gap: 8px; }
-  .mood-block { flex: 1; text-align: center; min-width: 0; }
-  .mood-block .who { font-size: 14px; color: var(--text); margin-bottom: 12px; font-weight: 700; }
-  .mood-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
-  .mood-btn {
-    background: var(--panel);
-    border: 1.5px solid var(--border);
-    color: var(--text);
-    border-radius: 12px;
-    padding: 4px 6px;
-    cursor: pointer;
-    font-size: 22px;
-    min-width: 42px;
-    min-height: 42px;
-    transition: all 0.15s;
+  .mood-person + .mood-person {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
   }
-  .mood-btn:hover { background: var(--panel-2); border-color: var(--border-strong); }
-  .mood-btn.active {
+  .mood-person-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .mood-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .mood-dot.wife { background: var(--wife); }
+  .mood-dot.husband { background: var(--husband); }
+  .mood-person-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+  }
+  .mood-current {
+    font-size: 22px;
+    line-height: 1;
+    padding: 4px 10px;
+    background: var(--accent-soft);
+    border-radius: 100px;
+    animation: mood-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .mood-current:empty { display: none; }
+  .mood-picker-strip {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 4px 0;
+    scroll-snap-type: x proximity;
+  }
+  .mood-picker-strip::-webkit-scrollbar { display: none; }
+  .mood-card {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    background: var(--panel-2);
+    border: 1.5px solid transparent;
+    border-radius: 16px;
+    padding: 12px 10px 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 72px;
+    transition: transform 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .mood-card:hover { background: var(--panel); border-color: var(--border-strong); }
+  .mood-card .emoji { font-size: 30px; line-height: 1; transition: transform 0.3s; }
+  .mood-card .label { font-size: 12px; font-weight: 700; color: var(--muted); }
+  .mood-card.active {
     border-color: var(--accent);
     background: var(--accent-soft);
-    box-shadow: 0 0 0 3px rgba(251,191,36,0.2);
-    transform: scale(1.05);
+    box-shadow: 0 6px 18px rgba(251,191,36,0.28);
+    transform: translateY(-3px);
+  }
+  .mood-card.active .emoji { animation: mood-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .mood-card.active .label { color: var(--accent-3); font-weight: 800; }
+
+  @keyframes mood-bounce {
+    0%, 100% { transform: scale(1) rotate(0); }
+    30% { transform: scale(1.3) rotate(-10deg); }
+    60% { transform: scale(1.15) rotate(8deg); }
+  }
+  @keyframes mood-pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .mood-history {
+    display: flex;
+    gap: 4px;
+    padding: 12px 0 0;
+    align-items: center;
+  }
+  .mood-history-label {
+    font-size: 11px;
+    color: var(--muted-2);
+    font-weight: 700;
+    margin-right: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .mood-history-day {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    background: var(--panel-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--muted-2);
+  }
+  .mood-history-day.today {
+    border: 2px solid var(--accent);
+  }
+  .mood-history-day.has-mood {
+    background: var(--panel);
+    box-shadow: var(--shadow-xs);
   }
 
   .grat-input {
@@ -561,44 +645,67 @@
   }
   .gnb button:hover { color: var(--text-2); }
   .gnb button.active { color: var(--accent-3); }
-  .gnb button.active .ico svg { stroke-width: 2.4; }
+  .gnb button.active .ico svg { stroke-width: 2.4; fill: rgba(251, 191, 36, 0.15); }
   .gnb button.active .lb { font-weight: 700; }
-  .gnb button.active::before {
-    content: '';
-    position: absolute;
-    top: 6px;
-    width: 32px;
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent), var(--accent-3));
-    border-radius: 100px;
-  }
-  .gnb button { position: relative; }
 
   /* Chat */
-  .chat-me-toggle {
-    display: flex;
-    gap: 4px;
-    background: var(--panel-2);
-    padding: 4px;
-    border-radius: 100px;
-    margin-bottom: 8px;
-    box-shadow: var(--shadow-xs);
+  .chat-role-choice {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 8px;
   }
-  .chat-me-btn {
-    flex: 1;
-    padding: 12px 16px;
-    border-radius: 100px;
-    background: transparent;
-    border: none;
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--muted);
+  .chat-role-btn {
+    padding: 24px 16px;
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    background: var(--panel-2);
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
     transition: all 0.15s;
   }
-  .chat-me-btn.active { color: var(--panel); }
-  .chat-me-btn.active.wife { background: var(--wife); box-shadow: 0 2px 8px rgba(245,158,11,0.4); }
-  .chat-me-btn.active.husband { background: var(--husband); box-shadow: 0 2px 8px rgba(59,130,246,0.4); }
+  .chat-role-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .chat-role-btn.wife:hover { border-color: var(--wife); background: var(--wife-soft); }
+  .chat-role-btn.husband:hover { border-color: var(--husband); background: var(--husband-soft); }
+  .chat-role-btn .emoji { font-size: 36px; line-height: 1; }
+
+  .chat-me-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-xs);
+  }
+  .chat-me-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-2);
+    font-weight: 500;
+  }
+  .chat-me-name b { color: var(--text); font-weight: 800; }
+  .chat-me-change {
+    background: transparent;
+    border: none;
+    color: var(--accent-2);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+  }
+  .chat-me-change:hover { background: var(--accent-2-soft); }
   .chat-hint {
     text-align: center;
     color: var(--muted-2);
@@ -708,58 +815,117 @@
   .chat-input-bar button:active { transform: scale(0.94); }
   .chat-input-bar button svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* Child */
+  /* Child (baby) */
   .child-desc { color: var(--muted); font-size: 14px; margin-bottom: 16px; font-weight: 500; line-height: 1.5; }
-  .child-status-choice {
+
+  .baby-stats {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
   }
-  .child-status-choice button {
-    padding: 24px 16px;
-    border-radius: 16px;
+  .baby-stat {
+    background: linear-gradient(135deg, var(--accent-soft), var(--accent-2-soft));
+    padding: 14px 10px;
+    border-radius: 14px;
+    text-align: center;
+  }
+  .baby-stat .emoji { font-size: 24px; display: block; margin-bottom: 4px; line-height: 1; }
+  .baby-stat .value { font-size: 18px; font-weight: 900; color: var(--text); letter-spacing: -0.3px; }
+  .baby-stat .label { font-size: 11px; color: var(--muted); font-weight: 700; margin-top: 2px; }
+
+  .baby-log-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--panel-2);
+    padding: 4px;
+    border-radius: 100px;
+    margin-bottom: 14px;
+  }
+  .baby-log-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 10px 8px;
+    border-radius: 100px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .baby-log-tab .emoji { font-size: 18px; line-height: 1; }
+  .baby-log-tab.active {
+    background: var(--panel);
+    color: var(--accent-3);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .baby-log-form { display: grid; gap: 8px; }
+  .full-btn { width: 100%; }
+
+  .diaper-choice {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .diaper-btn {
+    padding: 18px 8px;
+    border-radius: 14px;
     border: 1.5px solid var(--border);
     background: var(--panel-2);
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 13px;
     color: var(--text);
     transition: all 0.15s;
   }
-  .child-status-choice button:hover { border-color: var(--accent); background: var(--panel); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-  .child-status-choice button .emoji { font-size: 36px; line-height: 1; }
+  .diaper-btn:hover { border-color: var(--accent); background: var(--panel); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .diaper-btn .emoji { font-size: 24px; line-height: 1; }
 
-  .week-display {
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.3px;
-    color: var(--text);
-    margin-bottom: 10px;
-  }
-  .child-progress {
-    height: 10px;
-    background: var(--panel-2);
-    border-radius: 100px;
-    overflow: hidden;
-    margin: 8px 0 8px;
-  }
-  .child-progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent-2));
-    border-radius: 100px;
-    transition: width 0.5s ease;
-  }
-  .child-progress-label {
+  .baby-event {
     display: flex;
-    justify-content: space-between;
-    color: var(--muted);
-    font-size: 13px;
-    font-weight: 600;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: var(--panel-2);
+    border: 1px solid transparent;
+    margin-bottom: 6px;
+    transition: all 0.15s;
   }
+  .baby-event:hover { background: var(--panel); border-color: var(--border); }
+  .baby-event .event-time {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+    min-width: 78px;
+  }
+  .baby-event .event-time small { display: block; font-size: 10px; color: var(--muted-2); font-weight: 600; }
+  .baby-event .event-emoji { font-size: 22px; line-height: 1; flex-shrink: 0; }
+  .baby-event .event-info { flex: 1; min-width: 0; }
+  .baby-event .event-info .title { font-weight: 700; font-size: 14px; color: var(--text); word-break: break-word; }
+  .baby-event .event-info .memo { color: var(--muted); font-size: 12px; margin-top: 2px; font-weight: 500; word-break: break-word; }
+  .baby-event .del {
+    background: transparent;
+    border: none;
+    color: var(--muted-2);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px;
+    line-height: 1;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+  .baby-event .del:hover { color: var(--danger); background: rgba(239,68,68,0.1); }
 
   .milestone-add {
     display: grid;
@@ -908,15 +1074,23 @@
 
     <div class="card">
       <div class="card-title">오늘의 기분</div>
-      <div class="mood-row">
-        <div class="mood-block">
-          <div class="who" id="moodWifeLabel">아내</div>
-          <div class="mood-btns" id="moodWifeBtns"></div>
+      <div class="mood-person">
+        <div class="mood-person-head">
+          <span class="mood-dot wife"></span>
+          <span class="mood-person-name" id="moodWifeName">아내</span>
+          <span class="mood-current" id="moodWifeCurrent"></span>
         </div>
-        <div class="mood-block">
-          <div class="who" id="moodHusbandLabel">남편</div>
-          <div class="mood-btns" id="moodHusbandBtns"></div>
+        <div class="mood-picker-strip" id="moodWifePicker"></div>
+        <div class="mood-history" id="moodWifeHistory"></div>
+      </div>
+      <div class="mood-person">
+        <div class="mood-person-head">
+          <span class="mood-dot husband"></span>
+          <span class="mood-person-name" id="moodHusbandName">남편</span>
+          <span class="mood-current" id="moodHusbandCurrent"></span>
         </div>
+        <div class="mood-picker-strip" id="moodHusbandPicker"></div>
+        <div class="mood-history" id="moodHusbandHistory"></div>
       </div>
     </div>
 
@@ -967,142 +1141,151 @@
 
   <!-- CHAT -->
   <section class="tab" id="tab-chat">
-    <div class="chat-me-toggle">
-      <button class="chat-me-btn wife" data-me="wife">아내</button>
-      <button class="chat-me-btn husband" data-me="husband">남편</button>
+    <!-- Role setup (shown when no role set) -->
+    <div class="card" id="chatSetup" hidden>
+      <div class="card-title">채팅 시작하기</div>
+      <p class="child-desc">이 기기에서 누가 사용하시나요? 상대방은 자신의 기기에서 반대 역할로 사용해요.</p>
+      <div class="chat-role-choice">
+        <button class="chat-role-btn wife" data-role="wife"><span class="emoji">👩</span><span>아내</span></button>
+        <button class="chat-role-btn husband" data-role="husband"><span class="emoji">👨</span><span>남편</span></button>
+      </div>
     </div>
-    <div class="chat-hint">같은 기기에서 아내/남편 전환하며 대화해보세요</div>
-    <div class="chat-log" id="chatLog"></div>
-    <div class="chat-input-bar">
-      <input id="chatInput" type="text" placeholder="메시지를 입력하세요" maxlength="500" autocomplete="off">
-      <button id="chatSend" aria-label="전송">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><path d="M5 12l7-7 7 7"/></svg>
-      </button>
+
+    <!-- Chat content (shown when role set) -->
+    <div id="chatContent" hidden>
+      <div class="chat-me-info">
+        <span class="chat-me-name">
+          <span class="mood-dot" id="chatMeDot"></span>
+          나는 <b id="chatMeText">-</b>이에요
+        </span>
+        <button class="chat-me-change" id="chatMeChange">역할 변경</button>
+      </div>
+      <div class="chat-hint">💌 상대방 기기에 실시간 동기화 예정 (백엔드 연결 후)</div>
+      <div class="chat-log" id="chatLog"></div>
+      <div class="chat-input-bar">
+        <input id="chatInput" type="text" placeholder="메시지를 입력하세요" maxlength="500" autocomplete="off">
+        <button id="chatSend" aria-label="전송">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><path d="M5 12l7-7 7 7"/></svg>
+        </button>
+      </div>
     </div>
   </section>
 
   <!-- CHILD -->
   <section class="tab" id="tab-child">
-    <!-- Setup mode: shown when status === 'none' -->
-    <div class="card" id="childSetupCard">
-      <div class="card-title">우리 아이 정보 등록</div>
-      <p class="child-desc">현재 상태를 선택해주세요</p>
-      <div class="child-status-choice">
-        <button data-status="expecting"><span class="emoji">🤰</span><span>임신 중</span></button>
-        <button data-status="born"><span class="emoji">👶</span><span>이미 출산</span></button>
-      </div>
+    <!-- Hero: baby profile display -->
+    <div class="dday-hero">
+      <div class="label" id="babyHeroLabel">우리 아이</div>
+      <div class="title" id="babyHeroName">이름 미등록</div>
+      <div class="count" id="babyHeroAge">-</div>
+      <div class="date-sub" id="babyHeroSub">아이 정보를 등록해주세요</div>
     </div>
 
-    <!-- Expecting view -->
-    <div id="childExpectingView" hidden>
-      <div class="dday-hero">
-        <div class="label">출산 예정</div>
-        <div class="title" id="expectTitle">우리 아기</div>
-        <div class="count" id="expectCount">D-?</div>
-        <div class="date-sub" id="expectSub"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">임신 진행 상황</div>
-        <div class="week-display" id="weekDisplay">임신 - 주 - 일</div>
-        <div class="child-progress">
-          <div class="child-progress-fill" id="weekProgress" style="width:0%"></div>
-        </div>
-        <div class="child-progress-label">
-          <span id="weekProgressLabel">진행률 0%</span>
-          <span id="trimesterLabel">-</span>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">아이 정보</div>
-        <div class="profile-row">
-          <label>태명</label>
-          <input id="expectName" placeholder="예: 콩콩이" maxlength="20">
-        </div>
-        <div class="profile-row">
-          <label>예정일</label>
-          <input id="expectDueDate" type="date">
-        </div>
-        <div class="btn-row">
-          <button class="btn primary" id="expectSave">저장</button>
-          <button class="btn" id="expectToBorn">출산 완료</button>
-          <button class="btn danger" id="expectReset">초기화</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">임신 이정표</div>
-        <div class="milestone-add">
-          <input id="mExpectTitle" type="text" placeholder="예: 첫 태동" maxlength="60">
-          <input id="mExpectDate" type="date">
-          <input id="mExpectMemo" type="text" placeholder="메모 (선택)" maxlength="120">
-          <button class="btn primary" id="mExpectAdd">추가</button>
-        </div>
-        <div id="milestoneListExpect"></div>
-      </div>
+    <!-- Today stats -->
+    <div class="card">
+      <div class="card-title">오늘의 육아</div>
+      <div class="baby-stats" id="babyStats"></div>
     </div>
 
-    <!-- Born view -->
-    <div id="childBornView" hidden>
-      <div class="dday-hero">
-        <div class="label" id="bornLabel">아이 나이</div>
-        <div class="title" id="bornTitle">우리 아이</div>
-        <div class="count" id="bornCount">-</div>
-        <div class="date-sub" id="bornSub"></div>
+    <!-- Quick log -->
+    <div class="card">
+      <div class="card-title">빠른 기록</div>
+      <div class="baby-log-tabs">
+        <button class="baby-log-tab active" data-log="feed"><span class="emoji">🍼</span><span>수유</span></button>
+        <button class="baby-log-tab" data-log="diaper"><span class="emoji">👶</span><span>기저귀</span></button>
+        <button class="baby-log-tab" data-log="sleep"><span class="emoji">😴</span><span>수면</span></button>
       </div>
 
-      <div class="card">
-        <div class="card-title">아이 정보</div>
-        <div class="profile-row">
-          <label>이름</label>
-          <input id="bornName" placeholder="아이 이름" maxlength="20">
-        </div>
-        <div class="profile-row">
-          <label>성별</label>
-          <select id="bornGender">
-            <option value="">-</option>
-            <option value="boy">남아 👦</option>
-            <option value="girl">여아 👧</option>
+      <div class="baby-log-form" id="feedForm">
+        <div class="growth-add-row2">
+          <input id="feedAmount" type="number" step="1" min="0" placeholder="수유량 (ml)" inputmode="numeric">
+          <select id="feedMethod">
+            <option value="breast-left">모유 왼쪽</option>
+            <option value="breast-right">모유 오른쪽</option>
+            <option value="formula">분유</option>
+            <option value="mixed">혼합수유</option>
+            <option value="solid">이유식</option>
           </select>
         </div>
-        <div class="profile-row">
-          <label>생일</label>
-          <input id="bornBirth" type="date">
-        </div>
-        <div class="btn-row">
-          <button class="btn primary" id="bornSave">저장</button>
-          <button class="btn danger" id="bornReset">초기화</button>
+        <button class="btn primary full-btn" id="feedSave">🍼 지금 수유 기록</button>
+      </div>
+
+      <div class="baby-log-form" id="diaperForm" hidden>
+        <div class="diaper-choice">
+          <button class="diaper-btn" data-kind="pee"><span class="emoji">💧</span><span>소변</span></button>
+          <button class="diaper-btn" data-kind="poop"><span class="emoji">💩</span><span>대변</span></button>
+          <button class="diaper-btn" data-kind="both"><span class="emoji">💧💩</span><span>둘 다</span></button>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">성장 기록</div>
-        <div class="growth-latest" id="growthLatest"></div>
-        <div class="growth-add">
-          <div class="growth-add-row">
-            <input id="gDate" type="date">
-          </div>
-          <div class="growth-add-row2">
-            <input id="gHeight" type="number" step="0.1" placeholder="키 (cm)" inputmode="decimal">
-            <input id="gWeight" type="number" step="0.01" placeholder="몸무게 (kg)" inputmode="decimal">
-          </div>
-          <input id="gMemo" type="text" placeholder="메모 (선택)" maxlength="80">
-          <button class="btn primary" id="gAdd">기록 추가</button>
+      <div class="baby-log-form" id="sleepForm" hidden>
+        <div class="growth-add-row2">
+          <input id="sleepMin" type="number" min="1" placeholder="수면 시간 (분)" inputmode="numeric">
+          <input id="sleepMemo" type="text" placeholder="메모 (선택)" maxlength="60">
         </div>
-        <div id="growthList"></div>
+        <button class="btn primary full-btn" id="sleepSave">😴 수면 기록</button>
       </div>
+    </div>
 
-      <div class="card">
-        <div class="card-title">아이 이정표</div>
-        <div class="milestone-add">
-          <input id="mBornTitle" type="text" placeholder="예: 첫 뒤집기" maxlength="60">
-          <input id="mBornDate" type="date">
-          <input id="mBornMemo" type="text" placeholder="메모 (선택)" maxlength="120">
-          <button class="btn primary" id="mBornAdd">추가</button>
-        </div>
-        <div id="milestoneListBorn"></div>
+    <!-- Recent events -->
+    <div class="card">
+      <div class="card-title">최근 기록<span class="card-title-hint" id="babyEventHint"></span></div>
+      <div id="babyEventList"></div>
+    </div>
+
+    <!-- Baby info edit -->
+    <div class="card">
+      <div class="card-title">아이 정보</div>
+      <div class="profile-row">
+        <label>이름</label>
+        <input id="bornName" placeholder="아이 이름" maxlength="20">
       </div>
+      <div class="profile-row">
+        <label>성별</label>
+        <select id="bornGender">
+          <option value="">-</option>
+          <option value="boy">남아 👦</option>
+          <option value="girl">여아 👧</option>
+        </select>
+      </div>
+      <div class="profile-row">
+        <label>생일</label>
+        <input id="bornBirth" type="date">
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" id="bornSave">저장</button>
+        <button class="btn danger" id="bornReset">초기화</button>
+      </div>
+    </div>
+
+    <!-- Growth -->
+    <div class="card">
+      <div class="card-title">성장 기록</div>
+      <div class="growth-latest" id="growthLatest"></div>
+      <div class="growth-add">
+        <div class="growth-add-row">
+          <input id="gDate" type="date">
+        </div>
+        <div class="growth-add-row2">
+          <input id="gHeight" type="number" step="0.1" placeholder="키 (cm)" inputmode="decimal">
+          <input id="gWeight" type="number" step="0.01" placeholder="몸무게 (kg)" inputmode="decimal">
+        </div>
+        <input id="gMemo" type="text" placeholder="메모 (선택)" maxlength="80">
+        <button class="btn primary full-btn" id="gAdd">기록 추가</button>
+      </div>
+      <div id="growthList"></div>
+    </div>
+
+    <!-- Milestones -->
+    <div class="card">
+      <div class="card-title">이정표</div>
+      <div class="milestone-add">
+        <input id="mBornTitle" type="text" placeholder="예: 첫 뒤집기 / 첫 이 / 첫 걸음" maxlength="60">
+        <input id="mBornDate" type="date">
+        <input id="mBornMemo" type="text" placeholder="메모 (선택)" maxlength="120">
+        <button class="btn primary full-btn" id="mBornAdd">추가</button>
+      </div>
+      <div id="milestoneListBorn"></div>
     </div>
   </section>
 
@@ -1249,7 +1432,7 @@
   <!-- GNB -->
   <nav class="gnb" id="gnb">
     <button data-tab="home" class="active">
-      <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 20V11a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a1 1 0 0 1-1 1h-4v-6h-4v6H5a1 1 0 0 1-1-1z"/></svg></span>
+      <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3.2a1 1 0 0 0-.7.3l-8.5 8a1 1 0 0 0 .7 1.7H4v7a1 1 0 0 0 1 1h4v-6h6v6h4a1 1 0 0 0 1-1v-7h.5a1 1 0 0 0 .7-1.7l-8.5-8a1 1 0 0 0-.7-.3z"/></svg></span>
       <span class="lb">홈</span>
     </button>
     <button data-tab="chat">
@@ -1294,15 +1477,24 @@
     set(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
   };
 
-  let profile = LS.get('us:profile', { wife: '아내', husband: '남편', metDate: '', wedDate: '', ddaySrc: 'auto' });
+  let profile = LS.get('us:profile', { wife: '아내', husband: '남편', metDate: '', wedDate: '', ddaySrc: 'auto', myRole: '' });
+  if (profile.myRole === undefined) profile.myRole = '';
+  // Migrate old us:chatMe → profile.myRole
+  if (!profile.myRole) {
+    const legacyMe = LS.get('us:chatMe', null);
+    if (legacyMe === 'wife' || legacyMe === 'husband') {
+      profile.myRole = legacyMe;
+      LS.set('us:profile', profile);
+    }
+  }
   let todos = LS.get('us:todos', []);
   let anniversaries = LS.get('us:anniversaries', []);
   let budget = LS.get('us:budget', []);
   let chatMessages = LS.get('us:chat', []);
-  let chatMe = LS.get('us:chatMe', 'wife');
-  let child = LS.get('us:child', { status: 'none', name: '', gender: '', birthdate: '', dueDate: '' });
+  let child = LS.get('us:child', { status: 'born', name: '', gender: '', birthdate: '', dueDate: '' });
   let childMilestones = LS.get('us:childMilestones', []);
   let childGrowth = LS.get('us:childGrowth', []);
+  let babyEvents = LS.get('us:babyEvents', []);
   let currentFilter = 'all';
   let currentNotesDate = todayKey();
 
@@ -1320,7 +1512,18 @@
     LS.set('us:migrated', true);
   }
 
-  const MOODS = ['😄','🙂','😐','😢','😡','😴','😍','🤔'];
+  const MOODS = [
+    { emoji: '🥰', label: '설렘' },
+    { emoji: '😍', label: '최고' },
+    { emoji: '😊', label: '행복' },
+    { emoji: '🙂', label: '좋음' },
+    { emoji: '😌', label: '평온' },
+    { emoji: '😐', label: '무난' },
+    { emoji: '😴', label: '피곤' },
+    { emoji: '🥺', label: '우울' },
+    { emoji: '😤', label: '답답' },
+    { emoji: '🤒', label: '컨디션' }
+  ];
 
   function renderTodayLabel() {
     $('today').textContent = new Date().toLocaleDateString('ko-KR', {
@@ -1343,7 +1546,7 @@
     else if (name === 'anniv') renderAnnivs();
     else if (name === 'budget') { renderBudget(); if (!$('bDate').value) $('bDate').value = todayKey(); }
     else if (name === 'chat') { renderChat(); scrollChatToBottom(); }
-    else if (name === 'child') { renderChild(); }
+    else if (name === 'child') { if (!$('gDate').value) $('gDate').value = todayKey(); if (!$('mBornDate').value) $('mBornDate').value = todayKey(); renderChild(); }
     else if (name === 'more') { loadProfile(); loadNotesForToday(); }
   }
   document.querySelectorAll('#gnb button').forEach(btn => {
@@ -1440,26 +1643,56 @@
     $('statBudgetSub').textContent = `수입 ${fmtWon(monthInc)}`;
   }
   function renderMood() {
-    const data = LS.get(`us:mood-${todayKey()}`, {wife:null, husband:null});
-    $('moodWifeLabel').textContent = profile.wife || '아내';
-    $('moodHusbandLabel').textContent = profile.husband || '남편';
-    ['Wife','Husband'].forEach(role => {
-      const key = role.toLowerCase();
-      const container = $(`mood${role}Btns`);
+    const data = LS.get(`us:mood-${todayKey()}`, { wife: null, husband: null });
+    $('moodWifeName').textContent = profile.wife || '아내';
+    $('moodHusbandName').textContent = profile.husband || '남편';
+    ['wife', 'husband'].forEach(role => {
+      const cap = role[0].toUpperCase() + role.slice(1);
+      const currentEl = $(`mood${cap}Current`);
+      currentEl.textContent = data[role] || '';
+      const container = $(`mood${cap}Picker`);
       container.innerHTML = '';
       MOODS.forEach(m => {
         const b = document.createElement('button');
-        b.className = 'mood-btn' + (data[key] === m ? ' active' : '');
-        b.textContent = m;
+        b.className = 'mood-card' + (data[role] === m.emoji ? ' active' : '');
+        b.innerHTML = `<span class="emoji"></span><span class="label"></span>`;
+        b.querySelector('.emoji').textContent = m.emoji;
+        b.querySelector('.label').textContent = m.label;
         b.addEventListener('click', () => {
-          const next = LS.get(`us:mood-${todayKey()}`, {wife:null, husband:null});
-          next[key] = (next[key] === m) ? null : m;
+          const next = LS.get(`us:mood-${todayKey()}`, { wife: null, husband: null });
+          next[role] = (next[role] === m.emoji) ? null : m.emoji;
           LS.set(`us:mood-${todayKey()}`, next);
           renderMood();
         });
         container.appendChild(b);
       });
+      renderMoodHistory(role);
     });
+  }
+  function renderMoodHistory(role) {
+    const cap = role[0].toUpperCase() + role.slice(1);
+    const container = $(`mood${cap}History`);
+    if (!container) return;
+    container.innerHTML = '';
+    const label = document.createElement('span');
+    label.className = 'mood-history-label';
+    label.textContent = '지난 7일';
+    container.appendChild(label);
+    const todayK = todayKey();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const data = LS.get(`us:mood-${key}`, {});
+      const emoji = data[role];
+      const el = document.createElement('div');
+      el.className = 'mood-history-day';
+      if (emoji) el.classList.add('has-mood');
+      if (key === todayK) el.classList.add('today');
+      el.textContent = emoji || '·';
+      el.title = key;
+      container.appendChild(el);
+    }
   }
   ['gratWife','gratHusband'].forEach(id => {
     $(id).addEventListener('input', () => {
@@ -1538,13 +1771,6 @@
 
   // ============ Chat ============
   function saveChat() { LS.set('us:chat', chatMessages); }
-  function setChatMe(who) {
-    chatMe = who;
-    LS.set('us:chatMe', chatMe);
-    document.querySelectorAll('.chat-me-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.me === who);
-    });
-  }
   function scrollChatToBottom() {
     setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 50);
   }
@@ -1562,9 +1788,25 @@
     if (isYesterday) return '어제';
     return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
   }
+  function setMyRole(role) {
+    profile.myRole = role;
+    LS.set('us:profile', profile);
+  }
   function renderChat() {
-    setChatMe(chatMe);
-    $('chatInput').placeholder = `${(chatMe === 'wife' ? profile.wife : profile.husband) || (chatMe === 'wife' ? '아내' : '남편')}의 메시지`;
+    const setupCard = $('chatSetup');
+    const content = $('chatContent');
+    if (!profile.myRole) {
+      setupCard.hidden = false;
+      content.hidden = true;
+      return;
+    }
+    setupCard.hidden = true;
+    content.hidden = false;
+    const myName = profile.myRole === 'wife' ? (profile.wife || '아내') : (profile.husband || '남편');
+    $('chatMeText').textContent = myName;
+    $('chatMeDot').className = 'mood-dot ' + profile.myRole;
+    $('chatInput').placeholder = `${myName} 의 메시지`;
+
     const log = $('chatLog');
     log.innerHTML = '';
     if (chatMessages.length === 0) {
@@ -1586,14 +1828,15 @@
         lastDayKey = dk;
       }
       const row = document.createElement('div');
-      row.className = 'chat-bubble-row' + (m.from === chatMe ? ' mine' : '');
+      const isMine = m.from === profile.myRole;
+      row.className = 'chat-bubble-row' + (isMine ? ' mine' : '');
       const bubble = document.createElement('div');
       bubble.className = 'chat-bubble ' + m.from;
       bubble.textContent = m.text;
       const time = document.createElement('span');
       time.className = 'chat-time';
       time.textContent = fmtChatTime(m.ts);
-      if (m.from === chatMe) {
+      if (isMine) {
         row.appendChild(time);
         row.appendChild(bubble);
       } else {
@@ -1610,44 +1853,36 @@
     });
   }
   function sendChatMessage() {
+    if (!profile.myRole) return;
     const text = $('chatInput').value.trim();
     if (!text) return;
-    chatMessages.push({ id: uid(), from: chatMe, text, ts: Date.now() });
+    chatMessages.push({ id: uid(), from: profile.myRole, text, ts: Date.now() });
     $('chatInput').value = '';
     saveChat();
     renderChat();
     scrollChatToBottom();
   }
-  document.querySelectorAll('.chat-me-btn').forEach(btn => {
+  document.querySelectorAll('.chat-role-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      setChatMe(btn.dataset.me);
-      $('chatInput').placeholder = `${(chatMe === 'wife' ? profile.wife : profile.husband) || (chatMe === 'wife' ? '아내' : '남편')}의 메시지`;
+      setMyRole(btn.dataset.role);
       renderChat();
+      scrollChatToBottom();
     });
+  });
+  $('chatMeChange').addEventListener('click', () => {
+    if (!confirm('역할을 변경할까요? 이전 메시지는 그대로 유지됩니다')) return;
+    setMyRole('');
+    renderChat();
   });
   $('chatSend').addEventListener('click', sendChatMessage);
   $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendChatMessage(); });
 
-  // ============ Child ============
-  function saveChild() { LS.set('us:child', child); renderChild(); if ($('tab-home').classList.contains('active')) renderHome(); }
+  // ============ Child (Baby) ============
+  function saveChild() { LS.set('us:child', child); renderChild(); }
   function saveChildMilestones() { LS.set('us:childMilestones', childMilestones); renderChildMilestones(); }
   function saveChildGrowth() { LS.set('us:childGrowth', childGrowth); renderChildGrowth(); }
+  function saveBabyEvents() { LS.set('us:babyEvents', babyEvents); renderBabyStats(); renderBabyEvents(); }
 
-  function computeWeek(dueDateStr) {
-    // 예정일 - 280일 = LMP (임신 시작 추정)
-    // 오늘 - LMP = 현재 임신 일수
-    if (!dueDateStr) return null;
-    const due = new Date(dueDateStr);
-    const lmp = new Date(due); lmp.setDate(lmp.getDate() - 280);
-    const now = new Date();
-    const days = Math.floor((now - lmp) / (1000*60*60*24));
-    if (days < 0 || days > 300) return null;
-    const week = Math.floor(days / 7);
-    const dow = days % 7;
-    const trimester = week < 13 ? 1 : week < 27 ? 2 : 3;
-    const percent = Math.min(100, Math.max(0, Math.round(days / 280 * 100)));
-    return { week, dow, days, trimester, percent };
-  }
   function computeAge(birthStr) {
     if (!birthStr) return null;
     const birth = new Date(birthStr);
@@ -1664,104 +1899,192 @@
     return { days, months: totalMonths, years, display };
   }
 
-  function renderChild() {
-    const setupCard = $('childSetupCard');
-    const expView = $('childExpectingView');
-    const bornView = $('childBornView');
-    setupCard.hidden = child.status !== 'none';
-    expView.hidden = child.status !== 'expecting';
-    bornView.hidden = child.status !== 'born';
+  const FEED_METHOD_LABEL = {
+    'breast-left': '모유 왼쪽',
+    'breast-right': '모유 오른쪽',
+    'formula': '분유',
+    'mixed': '혼합수유',
+    'solid': '이유식'
+  };
+  const DIAPER_KIND_LABEL = { pee: '소변', poop: '대변', both: '소변+대변' };
+  const DIAPER_KIND_EMOJI = { pee: '💧', poop: '💩', both: '💧💩' };
 
-    if (child.status === 'expecting') {
-      $('expectName').value = child.name || '';
-      $('expectDueDate').value = child.dueDate || '';
-      $('expectTitle').textContent = child.name || '우리 아기';
-      const wk = computeWeek(child.dueDate);
-      if (wk) {
-        const days = Math.ceil((new Date(child.dueDate) - new Date()) / (1000*60*60*24));
-        $('expectCount').textContent = days === 0 ? 'D-DAY' : days > 0 ? `D-${days}` : `D+${-days}`;
-        $('expectSub').textContent = `예정일 ${child.dueDate}`;
-        $('weekDisplay').textContent = `임신 ${wk.week}주 ${wk.dow}일`;
-        $('weekProgress').style.width = wk.percent + '%';
-        $('weekProgressLabel').textContent = `진행률 ${wk.percent}%`;
-        $('trimesterLabel').textContent = `${wk.trimester}기 · ${wk.days}일차`;
-      } else {
-        $('expectCount').textContent = '-';
-        $('expectSub').textContent = child.dueDate ? '예정일 확인 필요' : '예정일을 입력해주세요';
-        $('weekDisplay').textContent = '예정일 입력 시 계산됩니다';
-        $('weekProgress').style.width = '0%';
-        $('weekProgressLabel').textContent = '진행률 -';
-        $('trimesterLabel').textContent = '-';
-      }
-      renderChildMilestones();
+  function renderChild() {
+    $('bornName').value = child.name || '';
+    $('bornGender').value = child.gender || '';
+    $('bornBirth').value = child.birthdate || '';
+    const genderEmoji = child.gender === 'boy' ? '👦' : child.gender === 'girl' ? '👧' : '👶';
+    $('babyHeroName').textContent = `${genderEmoji} ${child.name || '이름 미등록'}`;
+    $('babyHeroLabel').textContent = child.name ? `${child.name}의 나이` : '아이 나이';
+    const age = computeAge(child.birthdate);
+    if (age) {
+      $('babyHeroAge').textContent = age.display;
+      $('babyHeroSub').textContent = `생일 ${child.birthdate} · D+${age.days}`;
+    } else {
+      $('babyHeroAge').textContent = '👶';
+      $('babyHeroSub').textContent = '아래에서 생일을 입력해주세요';
     }
-    if (child.status === 'born') {
-      $('bornName').value = child.name || '';
-      $('bornGender').value = child.gender || '';
-      $('bornBirth').value = child.birthdate || '';
-      const genderEmoji = child.gender === 'boy' ? '👦' : child.gender === 'girl' ? '👧' : '👶';
-      $('bornTitle').textContent = `${genderEmoji} ${child.name || '우리 아이'}`;
-      $('bornLabel').textContent = child.name ? `${child.name}의 나이` : '아이 나이';
-      const age = computeAge(child.birthdate);
-      if (age) {
-        $('bornCount').textContent = age.display;
-        $('bornSub').textContent = `생일 ${child.birthdate} · D+${age.days}`;
-      } else {
-        $('bornCount').textContent = '-';
-        $('bornSub').textContent = '생일을 입력해주세요';
-      }
-      renderChildMilestones();
-      renderChildGrowth();
-    }
+    renderBabyStats();
+    renderBabyEvents();
+    renderChildMilestones();
+    renderChildGrowth();
   }
 
-  document.querySelectorAll('#childSetupCard [data-status]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const s = btn.dataset.status;
-      child.status = s;
-      if (s === 'expecting' && !$('mExpectDate').value) $('mExpectDate').value = todayKey();
-      if (s === 'born' && !$('gDate').value) $('gDate').value = todayKey();
-      saveChild();
-    });
-  });
-  $('expectSave').addEventListener('click', () => {
-    child.name = $('expectName').value.trim();
-    child.dueDate = $('expectDueDate').value;
-    saveChild();
-    alert('저장되었어요');
-  });
-  $('expectToBorn').addEventListener('click', () => {
-    if (!confirm('출산 완료 상태로 변경할까요? 태명은 아이 이름으로 이어집니다')) return;
-    child.status = 'born';
-    child.birthdate = child.birthdate || todayKey();
-    saveChild();
-  });
-  $('expectReset').addEventListener('click', () => {
-    if (!confirm('임신 정보를 초기화할까요? 이정표는 유지됩니다')) return;
-    child = { status: 'none', name: '', gender: '', birthdate: '', dueDate: '' };
-    saveChild();
-  });
   $('bornSave').addEventListener('click', () => {
     child.name = $('bornName').value.trim();
     child.gender = $('bornGender').value;
     child.birthdate = $('bornBirth').value;
+    child.status = 'born';
     saveChild();
     alert('저장되었어요');
   });
   $('bornReset').addEventListener('click', () => {
-    if (!confirm('아이 정보를 초기화할까요? 성장 기록과 이정표는 유지됩니다')) return;
-    child = { status: 'none', name: '', gender: '', birthdate: '', dueDate: '' };
+    if (!confirm('아이 정보를 초기화할까요? 육아 기록·성장·이정표는 유지됩니다')) return;
+    child = { status: 'born', name: '', gender: '', birthdate: '', dueDate: '' };
     saveChild();
   });
 
+  // Baby event stats
+  function isToday(ts) {
+    const d = new Date(ts);
+    const now = new Date();
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+  }
+  function renderBabyStats() {
+    const container = $('babyStats');
+    const today = babyEvents.filter(e => isToday(e.ts));
+    const feeds = today.filter(e => e.type === 'feed');
+    const feedTotalMl = feeds.reduce((s, e) => s + (Number(e.meta?.amount) || 0), 0);
+    const diapers = today.filter(e => e.type === 'diaper');
+    const sleeps = today.filter(e => e.type === 'sleep');
+    const sleepTotalMin = sleeps.reduce((s, e) => s + (Number(e.meta?.durationMin) || 0), 0);
+    const sleepH = Math.floor(sleepTotalMin / 60);
+    const sleepM = sleepTotalMin % 60;
+    const sleepDisplay = sleepH > 0 ? `${sleepH}시간 ${sleepM}분` : `${sleepM}분`;
+    container.innerHTML = `
+      <div class="baby-stat">
+        <span class="emoji">🍼</span>
+        <div class="value">${feeds.length}회</div>
+        <div class="label">${feedTotalMl > 0 ? feedTotalMl + 'ml' : '수유'}</div>
+      </div>
+      <div class="baby-stat">
+        <span class="emoji">👶</span>
+        <div class="value">${diapers.length}회</div>
+        <div class="label">기저귀</div>
+      </div>
+      <div class="baby-stat">
+        <span class="emoji">😴</span>
+        <div class="value">${sleeps.length}회</div>
+        <div class="label">${sleepTotalMin > 0 ? sleepDisplay : '수면'}</div>
+      </div>
+    `;
+  }
+  function fmtEventTime(ts) {
+    const d = new Date(ts);
+    const today = isToday(ts);
+    const dateStr = today ? '오늘' : `${d.getMonth()+1}/${d.getDate()}`;
+    const timeStr = d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+    return { dateStr, timeStr };
+  }
+  function renderBabyEvents() {
+    const list = $('babyEventList');
+    list.innerHTML = '';
+    const hint = $('babyEventHint');
+    if (babyEvents.length === 0) {
+      list.innerHTML = '<div class="empty">아직 기록이 없어요. 위에서 빠르게 기록해보세요</div>';
+      hint.textContent = '';
+      return;
+    }
+    hint.textContent = `총 ${babyEvents.length}건`;
+    const items = babyEvents.slice().sort((a, b) => b.ts - a.ts).slice(0, 30);
+    items.forEach(e => {
+      const row = document.createElement('div');
+      row.className = 'baby-event';
+      const { dateStr, timeStr } = fmtEventTime(e.ts);
+      let emoji = '📝', title = '', memo = '';
+      if (e.type === 'feed') {
+        emoji = '🍼';
+        const parts = [];
+        if (e.meta?.amount) parts.push(`${e.meta.amount}ml`);
+        if (e.meta?.method) parts.push(FEED_METHOD_LABEL[e.meta.method] || e.meta.method);
+        title = '수유';
+        memo = parts.join(' · ');
+      } else if (e.type === 'diaper') {
+        emoji = DIAPER_KIND_EMOJI[e.meta?.kind] || '👶';
+        title = '기저귀';
+        memo = DIAPER_KIND_LABEL[e.meta?.kind] || '';
+      } else if (e.type === 'sleep') {
+        emoji = '😴';
+        title = '수면';
+        const m = e.meta?.durationMin || 0;
+        const h = Math.floor(m/60), mm = m % 60;
+        memo = h > 0 ? `${h}시간 ${mm}분` : `${mm}분`;
+        if (e.meta?.memo) memo += ` · ${e.meta.memo}`;
+      }
+      row.innerHTML = `
+        <div class="event-time">${timeStr}<small>${dateStr}</small></div>
+        <span class="event-emoji"></span>
+        <div class="event-info">
+          <div class="title"></div>
+          <div class="memo"></div>
+        </div>
+        <button class="del" aria-label="삭제">×</button>
+      `;
+      row.querySelector('.event-emoji').textContent = emoji;
+      row.querySelector('.title').textContent = title;
+      const memoEl = row.querySelector('.memo');
+      memoEl.textContent = memo;
+      if (!memo) memoEl.style.display = 'none';
+      row.querySelector('.del').addEventListener('click', () => {
+        if (!confirm('삭제할까요?')) return;
+        babyEvents = babyEvents.filter(x => x.id !== e.id);
+        saveBabyEvents();
+      });
+      list.appendChild(row);
+    });
+  }
+
+  // Quick log tabs
+  document.querySelectorAll('.baby-log-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.baby-log-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const kind = tab.dataset.log;
+      $('feedForm').hidden = kind !== 'feed';
+      $('diaperForm').hidden = kind !== 'diaper';
+      $('sleepForm').hidden = kind !== 'sleep';
+    });
+  });
+  $('feedSave').addEventListener('click', () => {
+    const amount = parseFloat($('feedAmount').value) || 0;
+    const method = $('feedMethod').value;
+    babyEvents.push({ id: uid(), type: 'feed', ts: Date.now(), meta: { amount, method } });
+    $('feedAmount').value = '';
+    saveBabyEvents();
+  });
+  document.querySelectorAll('.diaper-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const kind = btn.dataset.kind;
+      babyEvents.push({ id: uid(), type: 'diaper', ts: Date.now(), meta: { kind } });
+      saveBabyEvents();
+    });
+  });
+  $('sleepSave').addEventListener('click', () => {
+    const durationMin = parseInt($('sleepMin').value, 10);
+    if (!durationMin || durationMin <= 0) { alert('수면 시간을 입력해주세요'); return; }
+    const memo = $('sleepMemo').value.trim();
+    babyEvents.push({ id: uid(), type: 'sleep', ts: Date.now(), meta: { durationMin, memo } });
+    $('sleepMin').value = ''; $('sleepMemo').value = '';
+    saveBabyEvents();
+  });
+
   function renderChildMilestones() {
-    const isExpecting = child.status === 'expecting';
-    const listEl = $(isExpecting ? 'milestoneListExpect' : 'milestoneListBorn');
+    const listEl = $('milestoneListBorn');
     if (!listEl) return;
     listEl.innerHTML = '';
     const items = childMilestones.slice().sort((a,b) => (b.date || '').localeCompare(a.date || ''));
     if (items.length === 0) {
-      listEl.innerHTML = '<div class="empty">이정표를 기록해보세요</div>';
+      listEl.innerHTML = '<div class="empty">이정표를 기록해보세요 (첫 뒤집기, 첫 걸음 등)</div>';
       return;
     }
     items.forEach(m => {
@@ -1787,17 +2110,15 @@
       listEl.appendChild(row);
     });
   }
-  function addMilestone(titleId, dateId, memoId) {
-    const title = $(titleId).value.trim();
-    const date = $(dateId).value;
-    const memo = $(memoId).value.trim();
+  $('mBornAdd').addEventListener('click', () => {
+    const title = $('mBornTitle').value.trim();
+    const date = $('mBornDate').value;
+    const memo = $('mBornMemo').value.trim();
     if (!title || !date) { alert('제목과 날짜를 입력해주세요'); return; }
     childMilestones.push({ id: uid(), title, date, memo, createdAt: Date.now() });
-    $(titleId).value = ''; $(memoId).value = '';
+    $('mBornTitle').value = ''; $('mBornMemo').value = '';
     saveChildMilestones();
-  }
-  $('mExpectAdd').addEventListener('click', () => addMilestone('mExpectTitle', 'mExpectDate', 'mExpectMemo'));
-  $('mBornAdd').addEventListener('click', () => addMilestone('mBornTitle', 'mBornDate', 'mBornMemo'));
+  });
 
   function renderChildGrowth() {
     const listEl = $('growthList');
