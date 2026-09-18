@@ -1,13 +1,13 @@
 {
-  "name": "Daily Focus",
-  "short_name": "Focus",
-  "description": "할 일 · 뽀모도로 · 오늘 메모 통합 대시보드",
+  "name": "우리의 하루",
+  "short_name": "우리의 하루",
+  "description": "부부를 위한 D-Day · 할 일 · 기념일 · 가계부 · 오늘의 기분 통합 앱",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f1115",
-  "theme_color": "#0f1115",
+  "background_color": "#14111a",
+  "theme_color": "#14111a",
   "lang": "ko",
   "icons": [
     {

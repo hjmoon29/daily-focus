@@ -1,5 +1,5 @@
 // 배포마다 버전 bump 필수 (사용자 브라우저 캐시 갱신 트리거)
-const CACHE = 'daily-focus-v2';
+const CACHE = 'daily-focus-v3';
 const ASSETS = [
   './',
   'index.html',
